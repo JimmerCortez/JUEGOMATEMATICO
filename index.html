@@ -19,7 +19,7 @@
   h1:hover {
     transform: scale(1.1);
   }
-  .respuesta-btn, .difficulty-btn, .mode-btn {
+  .respuesta-btn, .difficulty-btn, .mode-btn, .restart-btn {
     font-size: 24px;
     margin: 10px;
     padding: 15px 30px;
@@ -30,11 +30,11 @@
     border-radius: 8px;
     transition: background-color 0.3s, transform 0.5s ease;
   }
-  .respuesta-btn:hover, .difficulty-btn:hover, .mode-btn:hover {
+  .respuesta-btn:hover, .difficulty-btn:hover, .mode-btn:hover, .restart-btn:hover {
     background-color: #45a049;
     transform: scale(1.05);
   }
-  .respuesta-btn:focus, .difficulty-btn:focus, .mode-btn:focus {
+  .respuesta-btn:focus, .difficulty-btn:focus, .mode-btn:focus, .restart-btn:focus {
     outline: none;
   }
   .mensaje {
@@ -62,12 +62,34 @@
     background-color: #4caf50;
     transition: width 0.5s ease;
   }
+  .attempts-bar {
+    width: 100%;
+    background-color: #ddd;
+    border-radius: 8px;
+    margin-top: 20px;
+    overflow: hidden;
+  }
+  .attempts {
+    width: 100%;
+    height: 30px;
+    background-color: #ff6f61;
+    transition: width 0.5s ease;
+  }
   .dark-mode {
     background-color: #333;
     color: #fff;
   }
   #difficulty-buttons {
     margin-bottom: 20px;
+  }
+  .game-over, .you-won {
+    display: none;
+    font-size: 48px;
+    font-weight: bold;
+  }
+  #progress-info {
+    font-size: 20px;
+    margin-top: 10px;
   }
 </style>
 </head>
@@ -79,6 +101,13 @@
   <div class="progress-bar">
     <div id="progress" class="progress"></div>
   </div>
+  <div id="progress-info">Preguntas correctas: <span id="correct-questions">0</span> / <span id="total-questions">0</span> (Para Ganar: 20)</div>
+  <div class="attempts-bar">
+    <div id="attempts" class="attempts"></div>
+  </div>
+  <div id="game-over" class="game-over">Game Over</div>
+  <div id="you-won" class="you-won">¡Ganaste, eres super!</div>
+  <button onclick="restartGame()" class="restart-btn" style="display: none;">¿Quieres volver a jugar?</button>
 
   <h2>Selecciona una Dificultad</h2>
   <div id="difficulty-buttons">
@@ -93,6 +122,9 @@
     let correctAnswer;
     let score = 0;
     let totalQuestions = 0;
+    const totalQuestionsToWin = 20; // Número fijo de preguntas para ganar
+    let attemptsLeft = 10;
+    const maxScore = 20;
     let difficulty = 'medium';
 
     function generarOperacion() {
@@ -127,9 +159,8 @@
           break;
         default:
           num1 = Math.floor(Math.random() * 50) + 1;
-          num2 = Math.floor(Math.random() * 50) + 1;
+          num2 =Math.floor(Math.random() * 50) + 1;
       }
-
       switch (operador) {
         case '+':
           correctAnswer = num1 + num2;
@@ -148,6 +179,18 @@
     }
 
     function mostrarOperacion() {
+      if (score >= maxScore) {
+        document.getElementById("you-won").style.display = "block";
+        document.querySelector(".restart-btn").style.display = "block"; // Mostrar botón de reinicio
+        return;
+      }
+
+      if (attemptsLeft <= 0) {
+        document.getElementById("game-over").style.display = "block";
+        document.querySelector(".restart-btn").style.display = "block"; // Mostrar botón de reinicio
+        return;
+      }
+
       const nuevaOperacion = generarOperacion();
       document.getElementById("operacion").textContent = nuevaOperacion;
 
@@ -198,31 +241,49 @@
     }
 
     function verificarRespuesta(respuestaUsuario) {
+      if (score >= maxScore || attemptsLeft <= 0) return;
+
       totalQuestions++;
       if (respuestaUsuario === correctAnswer) {
         score++;
         mostrarMensaje("¡Correcto!", 'correcto');
         audioCorrect.play();
       } else {
+        attemptsLeft--;
         mostrarMensaje(`Incorrecto. La respuesta correcta es ${correctAnswer}`, 'incorrecto');
         audioIncorrect.play();
       }
       mostrarOperacion();
-      actualizarBarraProgreso();
+      actualizarBarras();
     }
 
-    function actualizarBarraProgreso() {
-      const progress = (score / totalQuestions) * 100;
+    function actualizarBarras() {
+      const progress = (score / maxScore) * 100;
       document.getElementById("progress").style.width = progress + '%';
+      const attemptsProgress = (attemptsLeft / 10) * 100;
+      document.getElementById("attempts").style.width = attemptsProgress + '%';
+      
+      document.getElementById("correct-questions").textContent = score;
+      document.getElementById("total-questions").textContent = totalQuestionsToWin; // Mostrar el número fijo de preguntas para ganar
     }
 
     function setDifficulty(level) {
       difficulty = level;
+      score = 0;
+      totalQuestions = 0;
+      attemptsLeft = 10;
+      document.getElementById("game-over").style.display = "none";
+      document.getElementById("you-won").style.display = "none";
+      document.querySelector(".restart-btn").style.display = "none"; // Ocultar botón de reinicio
       mostrarOperacion();
     }
 
     function toggleDarkMode() {
       document.body.classList.toggle("dark-mode");
+    }
+
+    function restartGame() {
+      setDifficulty(difficulty); // Reiniciar el juego
     }
 
     // Enlaces de sonido
@@ -248,8 +309,8 @@
       audioButtonClick.play();
     }
 
-    // Agregar el sonido de clic a los botones de dificultad y modo oscuro
-    document.querySelectorAll('.difficulty-btn, .mode-btn').forEach(function(button) {
+    // Agregar el sonido de clic a los botones de dificultad, modo oscuro y reinicio
+    document.querySelectorAll('.difficulty-btn, .mode-btn, .restart-btn').forEach(function(button) {
       button.addEventListener('click', playButtonClickSound);
     });
 
