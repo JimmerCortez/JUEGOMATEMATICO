@@ -93,31 +93,43 @@
     let correctAnswer;
     let score = 0;
     let totalQuestions = 0;
+    let difficulty = 'medium';
 
     function generarOperacion() {
-      var num1, num2;
-      var operadores = ['+', '-', '*', '/'];
-      var operador = operadores[Math.floor(Math.random() * operadores.length)];
-      
+      let num1, num2;
+      const operadores = ['+', '-', '*', '/'];
+      const operador = operadores[Math.floor(Math.random() * operadores.length)];
+
       switch (difficulty) {
         case 'easy':
-          num1 = Math.floor(Math.random() * 5) + 1;
-          num2 = Math.floor(Math.random() * 5) + 1;
+          num1 = Math.floor(Math.random() * 10) + 1;
+          num2 = Math.floor(Math.random() * 10) + 1;
+          if (operador === '/') {
+            while (num1 % num2 !== 0) {
+              num1 = Math.floor(Math.random() * 10) + 1;
+              num2 = Math.floor(Math.random() * 10) + 1;
+            }
+          }
           break;
         case 'medium':
-          num1 = Math.floor(Math.random() * 10) + 1;
-          num2 = Math.floor(Math.random() * 10) + 1;
+          num1 = Math.floor(Math.random() * 50) + 1;
+          num2 = Math.floor(Math.random() * 50) + 1;
+          if (operador === '/') {
+            while (num1 % num2 !== 0) {
+              num1 = Math.floor(Math.random() * 50) + 1;
+              num2 = Math.floor(Math.random() * 50) + 1;
+            }
+          }
           break;
         case 'hard':
-          num1 = Math.floor(Math.random() * 20) + 1;
-          num2 = Math.floor(Math.random() * 20) + 1;
+          num1 = Math.floor(Math.random() * 100) + 1;
+          num2 = Math.floor(Math.random() * 100) + 1;
           break;
         default:
-          num1 = Math.floor(Math.random() * 10) + 1;
-          num2 = Math.floor(Math.random() * 10) + 1;
+          num1 = Math.floor(Math.random() * 50) + 1;
+          num2 = Math.floor(Math.random() * 50) + 1;
       }
 
-      var operacion;
       switch (operador) {
         case '+':
           correctAnswer = num1 + num2;
@@ -132,28 +144,39 @@
           correctAnswer = parseFloat((num1 / num2).toFixed(2));
           break;
       }
-      operacion = num1 + ' ' + operador + ' ' + num2;
-      return operacion;
+      return `${num1} ${operador} ${num2}`;
     }
 
     function mostrarOperacion() {
-      var nuevaOperacion = generarOperacion();
+      const nuevaOperacion = generarOperacion();
       document.getElementById("operacion").textContent = nuevaOperacion;
 
-      var respuestas = [];
-      respuestas.push(correctAnswer);
+      const respuestas = [correctAnswer];
       while (respuestas.length < 4) {
-        var randomAnswer = Math.floor(Math.random() * 40) - 10;
+        let randomAnswer;
+        switch (difficulty) {
+          case 'easy':
+            randomAnswer = Math.floor(Math.random() * 20) + 1;
+            break;
+          case 'medium':
+            randomAnswer = Math.floor(Math.random() * 100) + 1;
+            break;
+          case 'hard':
+            randomAnswer = Math.floor(Math.random() * 200) - 100;
+            break;
+          default:
+            randomAnswer = Math.floor(Math.random() * 100) + 1;
+        }
         if (!respuestas.includes(randomAnswer)) {
           respuestas.push(randomAnswer);
         }
       }
       respuestas.sort(() => Math.random() - 0.5);
 
-      var respuestasDiv = document.getElementById("respuestas");
+      const respuestasDiv = document.getElementById("respuestas");
       respuestasDiv.innerHTML = "";
       respuestas.forEach(function(answer) {
-        var button = document.createElement("button");
+        const button = document.createElement("button");
         button.textContent = answer;
         button.className = "respuesta-btn";
         button.onclick = function() {
@@ -165,7 +188,7 @@
     }
 
     function mostrarMensaje(mensaje, tipo) {
-      var mensajeDiv = document.getElementById("mensaje");
+      const mensajeDiv = document.getElementById("mensaje");
       mensajeDiv.textContent = mensaje;
       mensajeDiv.style.backgroundColor = tipo === 'correcto' ? '#4caf50' : '#ff6f61';
       mensajeDiv.style.display = 'block';
@@ -176,12 +199,12 @@
 
     function verificarRespuesta(respuestaUsuario) {
       totalQuestions++;
-      if (respuestaUsuario == correctAnswer) {
+      if (respuestaUsuario === correctAnswer) {
         score++;
         mostrarMensaje("¡Correcto!", 'correcto');
         audioCorrect.play();
       } else {
-        mostrarMensaje("Incorrecto. La respuesta correcta es " + correctAnswer, 'incorrecto');
+        mostrarMensaje(`Incorrecto. La respuesta correcta es ${correctAnswer}`, 'incorrecto');
         audioIncorrect.play();
       }
       mostrarOperacion();
@@ -189,11 +212,9 @@
     }
 
     function actualizarBarraProgreso() {
-      var progress = (score / totalQuestions) * 100;
+      const progress = (score / totalQuestions) * 100;
       document.getElementById("progress").style.width = progress + '%';
     }
-
-    let difficulty = 'medium';
 
     function setDifficulty(level) {
       difficulty = level;
@@ -201,15 +222,14 @@
     }
 
     function toggleDarkMode() {
-      var body = document.body;
-      body.classList.toggle("dark-mode");
+      document.body.classList.toggle("dark-mode");
     }
 
     // Enlaces de sonido
-    let audioCorrect = new Audio('https://freesound.org/data/previews/80/80921_1022651-lq.mp3');
-    let audioIncorrect = new Audio('https://www.cjoint.com/doc/24_05/NEsujyPrwBN_error-126627-210225.mp3');
-    let audioButtonClick = new Audio('aqui ba un sonido mp3');
-    let audioBackground = new Audio('https://www.cjoint.com/doc/24_05/NEsuZn7pAfN_Audio-de-WhatsApp-2024-05-18-a-las-15.47.22-7dfaa729.mp3');
+    const audioCorrect = new Audio('https://freesound.org/data/previews/80/80921_1022651-lq.mp3');
+    const audioIncorrect = new Audio('https://www.cjoint.com/doc/24_05/NEsujyPrwBN_error-126627-210225.mp3');
+    const audioButtonClick = new Audio('aqui va un sonido.mp3');
+    const audioBackground = new Audio('https://www.cjoint.com/doc/24_05/NEsuZn7pAfN_Audio-de-WhatsApp-2024-05-18-a-las-15.47.22-7dfaa729.mp3');
 
     // Configuración de la música de fondo
     const loopTime = 170; // 2 minutos y 50 segundos en segundos
@@ -233,7 +253,8 @@
       button.addEventListener('click', playButtonClickSound);
     });
 
-    mostrarOperacion();
+    // Inicializar la operación al cargar la página
+    window.onload = mostrarOperacion;
   </script>
 </body>
 </html>
