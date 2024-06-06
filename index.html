@@ -10,7 +10,12 @@
     text-align: center;
     background-color: #E0FFFF;
     transition: background-color 0.5s ease;
+    /* Imagen de fondo predeterminada para el modo claro */
+    background-image: url('https://s1.1zoom.me/big0/349/Battlefield_1_Pistols_Two_534193_1280x761.jpg');
+    background-size: cover;
+    background-position: center;
   }
+
   h1 {
     font-size: 48px;
     color: #ff0000;
@@ -101,7 +106,7 @@
   <div class="progress-bar">
     <div id="progress" class="progress"></div>
   </div>
-  <div id="progress-info">Preguntas correctas: <span id="correct-questions">0</span> / <span id="total-questions">0</span> (Para Ganar: 20)</div>
+  <div id="progress-info">Preguntas correctas: <span id="correct-questions">0</span> / <span id="total-questions">20</span> 
   <div class="attempts-bar">
     <div id="attempts" class="attempts"></div>
   </div>
@@ -116,7 +121,7 @@
     <button onclick="setDifficulty('hard')" style="background-color: #ff6666;" class="difficulty-btn">Difícil</button>
   </div>
   
-  <button onclick="toggleDarkMode()" style="margin-top: 20px;" class="mode-btn">Modo Oscuro</button>
+  <button onclick="toggleDarkMode()" style="margin-top: 20px;" class="mode-btn">Cambiar color de las letras</button>
 
   <script>
     let correctAnswer;
