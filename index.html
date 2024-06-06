@@ -299,9 +299,12 @@
 
     // Configuración de la música de fondo
     const loopTime = 170; // 2 minutos y 50 segundos en segundos
-    audioBackground.volume = 0.2; // Volumen moderado
-    audioBackground.play(); // Iniciar la música
-
+    audioBackground.volume = 0.3; // Volumen moderado
+    function playBackgroundMusic() {
+    audioBackground.play();
+    }
+    playBackgroundMusic();
+    
     // Reiniciar la música después de 2 minutos y 50 segundos
     audioBackground.addEventListener('timeupdate', function() {
       if (audioBackground.currentTime >= loopTime) {
